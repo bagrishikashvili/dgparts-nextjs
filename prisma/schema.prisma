@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model carts {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  userId     Int       @db.UnsignedInt
+  order_id   Int?
+  part_id    Int       @db.UnsignedInt
+  quantity   Int       @db.UnsignedInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model marks {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(255)
+  image_url  String    @db.VarChar(255)
+  image_name String?   @db.VarChar(255)
+  sorted     Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  models     models[]
+}
+
+model models {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  mark_id     Int       @db.UnsignedInt
+  model_name  String?   @db.VarChar(500)
+  model_image String?   @db.VarChar(500)
+  image_name  String?   @db.VarChar(500)
+  start_year  String?   @db.VarChar(500)
+  end_year    String?   @db.VarChar(500)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  marks       marks     @relation(fields: [mark_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "rel_marks")
+
+  @@index([id], map: "id")
+  @@index([mark_id], map: "rel_marks")
+}
+
+model orders {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  userId      Int?
+  orderNumber String?   @db.VarChar(12)
+  isActive    Int?      @default(0) @db.TinyInt
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model parts {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  mark_id          Int       @db.UnsignedInt
+  model_id         Int       @db.UnsignedInt
+  compatible       String?   @db.VarChar(255)
+  part_name        String?   @db.VarChar(500)
+  part_image       String?   @db.VarChar(500)
+  image_name       String?   @db.VarChar(500)
+  part_price       Float     @default(0)
+  part_description String?   @db.LongText
+  stock            Boolean   @default(false)
+  stock_tb         Boolean   @default(false)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model users {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  email             String?   @unique @db.VarChar(255)
+  password          String    @default("") @db.VarChar(255)
+  first_name        String?   @db.VarChar(255)
+  last_name         String?   @db.VarChar(255)
+  phone_number      String?   @db.VarChar(12)
+  email_verified_at DateTime? @db.Timestamp(0)
+  remember_token    String?   @db.VarChar(100)
+  isAdmin           Int?      @default(0) @db.TinyInt
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
